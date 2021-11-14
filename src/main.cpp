@@ -47,15 +47,19 @@ class Cell{
 int main()
 {
     const int grid_size = 35;
+
     sf::RenderWindow window(sf::VideoMode(714, 714), "Game of life");
-    window.setFramerateLimit(1);
+    window.setFramerateLimit(15);
+
     Cell grid[grid_size][grid_size];
     bool tmpGrid[grid_size][grid_size]={0};
+
+    srand(time(NULL));
 
     sf::Vector2f pos(0.f, 0.f);
     for (int i = 0; i < grid_size; i++){
         for(int j = 0; j < grid_size; j++){
-            grid[i][j] = Cell(false, pos);
+            grid[i][j] = Cell(rand() % 2, pos);
             pos.x += 21.f;
         }
         pos.x = 0.f;
@@ -69,12 +73,14 @@ int main()
         grid[15][14].setState(true);
         grid[15][15].setState(true);
         grid[15][16].setState(true);
+
+        grid[1][2].setState(true);
+        grid[2][3].setState(true);
+        grid[3][3].setState(true);
+        grid[3][2].setState(true);
+        grid[3][1].setState(true);
     while (window.isOpen())
     {
-
-
-
-
         sf::Event event;
         while (window.pollEvent(event))
         {
@@ -132,12 +138,12 @@ int main()
                 grid[i][j].setState(tmpGrid[i][j]);
             }
         }
-        for (int i = 0; i < grid_size; i++){
-            for(int j = 0; j < grid_size; j++){
-                std::cout << grid[i][j].getNg() << " ";
-            }
-            std::cout << std::endl;
-        }
+        // for (int i = 0; i < grid_size; i++){
+        //     for(int j = 0; j < grid_size; j++){
+        //         std::cout << grid[i][j].getNg() << " ";
+        //     }
+        //     std::cout << std::endl;
+        // }
         
 
 

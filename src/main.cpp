@@ -9,7 +9,7 @@ class Cell{
         int neighbour;
     
     public:
-        std::vector<std::vector<int>> neighbours;
+        //std::vector<std::vector<int>> neighbours;
         Cell(){
             cell.setSize(sf::Vector2f(15.f, 15.f));       //
             cell.setFillColor(sf::Color(255, 255, 255));  // Creating circle
@@ -30,7 +30,6 @@ class Cell{
         }
 
         sf::RectangleShape getShape(){return cell;} // Required for drawing the cell
-        void setColor(){cell.setFillColor(sf::Color(0, 0, 0));}
         void setState(bool cellState){
             // cell color depends on it's state
             state = cellState;
@@ -40,33 +39,33 @@ class Cell{
         bool getState(){return state;}
         int getNg(){return neighbour;}
         void setNg(){neighbour += 1;}
-        void setNg(int x){neighbour = x;}
-        
+        void setNg(int x){neighbour = x;}   
 };
 
 const int grid_size = 60; // grid size 60X60 cells
 void recursionForLoop(int sizeX, int sizeY, int constant, sf::RenderWindow &window, Cell grid[][grid_size], bool tmp[][grid_size], int funToDo);
+void recursiveGridSetup(int sizeX, int sizeY, int constant,Cell grid[][grid_size], sf::Vector2f &pos);
 
 int main()
 {
 
-    sf::RenderWindow window(sf::VideoMode(960, 960), "Game of life");
+    sf::RenderWindow window(sf::VideoMode(grid_size*16, grid_size*16), "Game of life"); // window size depends on grid size
     window.setFramerateLimit(15);
 
     Cell grid[grid_size][grid_size];
-    bool tmpGrid[grid_size][grid_size]={0};
+    bool tmpGrid[grid_size][grid_size]={0}; // Grid that contains next generation values
 
     srand(time(NULL));
-
     sf::Vector2f pos(0.f, 0.f);
-    for (int i = 0; i < grid_size; i++){
-        for(int j = 0; j < grid_size; j++){
-            grid[i][j] = Cell(rand() % 2, pos);
-            pos.x += 16.f;
-        }
-        pos.x = 0.f;
-        pos.y += 16.f;
-    }
+    // for (int i = 0; i < grid_size; i++){
+    //     for(int j = 0; j < grid_size; j++){
+    //         grid[i][j] = Cell(rand() % 2, pos);
+    //         pos.x += 16.f;
+    //     }
+    //     pos.x = 0.f;
+    //     pos.y += 16.f;
+    // }
+    recursiveGridSetup(grid_size-1, grid_size-1, grid_size-1, grid, pos);
 
 
     // grid[15][14].setState(true);
@@ -192,5 +191,19 @@ void recursionForLoop(int sizeX, int sizeY, int constant, sf::RenderWindow &wind
                 break;                
         }
         recursionForLoop(sizeX, sizeY-1, constant, window, grid, tmp, funToDo);
+    }
+}
+void recursiveGridSetup(int sizeX, int sizeY, int constant,Cell grid[][grid_size], sf::Vector2f &pos){
+    if (sizeX == 0 && sizeY < 0) return;  // end loop when no more rows and columns
+    else if(sizeY < 0){ // if end of row restart in a new row
+        pos.x = 0.f;
+        pos.y += 16.f;
+        recursiveGridSetup(sizeX-1, constant, constant, grid, pos);
+    }
+    else {
+        // else for every cell in the grid do something
+        grid[sizeX][sizeY] = Cell(rand() % 2, pos);
+        pos.x += 16.f;
+        recursiveGridSetup(sizeX, sizeY-1, constant, grid, pos);
     }
 }

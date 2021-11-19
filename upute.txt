@@ -1,0 +1,8 @@
+OS: Linux
+
+potrebno je prije instalirati biblioteku
+sudo apt-get install libsfml-dev
+pokretanje:
+u terminalu unutar direktorija gameOfLife pokrenuti bin/main
+
+

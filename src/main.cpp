@@ -30,6 +30,11 @@ class Cell{
         }
 
         sf::RectangleShape getShape(){return cell;} // Required for drawing the cell
+        void setState(){
+            state = state ? !state : true;
+            if(state){cell.setFillColor(sf::Color(0, 0, 0));}
+            else {cell.setFillColor(sf::Color(255, 255, 255));}
+        }
         void setState(bool cellState){
             // cell color depends on it's state
             state = cellState;
@@ -40,6 +45,23 @@ class Cell{
         int getNg(){return neighbour;}
         void setNg(){neighbour += 1;}
         void setNg(int x){neighbour = x;}   
+
+        bool overCell(sf::RenderWindow& window) {// is the cursor in a cell
+            float mouseX = sf::Mouse::getPosition(window).x; // x coordinate of the mouse
+            float mouseY = sf::Mouse::getPosition(window).y; // y coordinate of the mouse
+
+            float btnPosX = cell.getPosition().x; // x coordinate of the button
+            float btnPosY = cell.getPosition().y; // y coordinate of the button
+
+            float btnPositionWidth = btnPosX + cell.getLocalBounds().width; // button width boundary
+            float btnPositionHeight = btnPosY + cell.getLocalBounds().height; // button height boundary
+
+            // if the mouse is within the button
+            if (mouseX < btnPositionWidth && mouseX > btnPosX&& mouseY < btnPositionHeight && mouseY > btnPosY) {
+                return true;
+            }
+            else return false;
+        }
 };
 
 const int grid_size = 60; // grid size 60X60 cells
@@ -48,7 +70,7 @@ void recursiveGridSetup(int sizeX, int sizeY, int constant,Cell grid[][grid_size
 
 int main()
 {
-
+    bool start = false;
     sf::RenderWindow window(sf::VideoMode(grid_size*16, grid_size*16), "Game of life"); // window size depends on grid size
     window.setFramerateLimit(15);
 
@@ -66,17 +88,6 @@ int main()
     //     pos.y += 16.f;
     // }
     recursiveGridSetup(grid_size-1, grid_size-1, grid_size-1, grid, pos);
-
-
-    // grid[15][14].setState(true);
-    // grid[15][15].setState(true);
-    // grid[15][16].setState(true);
-
-    // grid[1][2].setState(true);
-    // grid[2][3].setState(true);
-    // grid[3][3].setState(true);
-    // grid[3][2].setState(true);
-    // grid[3][1].setState(true);
     
     while (window.isOpen())
     {
@@ -85,48 +96,60 @@ int main()
         {
             if (event.type == sf::Event::Closed)
                 window.close();
+            else if(event.type == sf::Event::MouseButtonPressed){
+                recursionForLoop(grid_size-1, grid_size-1, grid_size-1, window, grid, tmpGrid, 6);
+            }
+            else if (event.type == sf::Event::KeyPressed){
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))start = start ? !start : true;
+                else if (sf::Keyboard::isKeyPressed(sf::Keyboard::R)) {
+                    recursionForLoop(grid_size-1, grid_size-1, grid_size-1, window, grid, tmpGrid, 7);
+                    start = false;
+                }
+            }
         }
+        if(start){
+            // Reset alive neighbour with recursion
+            recursionForLoop(grid_size-1, grid_size-1, grid_size-1, window, grid, tmpGrid, 4);
 
-        // Reset alive neighbour with recursion
-        recursionForLoop(grid_size-1, grid_size-1, grid_size-1, window, grid, tmpGrid, 4);
+            // Find all the neighbours of every cell with a half recursion...
+            recursionForLoop(grid_size-1, grid_size-1, grid_size-1, window, grid, tmpGrid, 5);
 
-        // Find all the neighbours of every cell with a half recursion...
-        recursionForLoop(grid_size-1, grid_size-1, grid_size-1, window, grid, tmpGrid, 5);
+            // Add the coordinates of a cell neighbour to its vector
+            // for (int i = 0; i < 8; i++){
+            //     for(int j = 0; j < 2; j++){
+            //         std::cout << grid[1][1].neighbours[i][j] << " ";
+            //     }
+            //     std::cout << std::endl;
+            // }
+        
 
-        // Add the coordinates of a cell neighbour to its vector
-        // for (int i = 0; i < 8; i++){
-        //     for(int j = 0; j < 2; j++){
-        //         std::cout << grid[1][1].neighbours[i][j] << " ";
-        //     }
-        //     std::cout << std::endl;
-        // }
-    
+            // Game of life logic with loops
+            // for (int i = 0; i < grid_size; i++){
+            //     for(int j = 0; j < grid_size; j++){
+            //         if (grid[i][j].getState() && (grid[i][j].getNg() < 2 || grid[i][j].getNg() > 3))
+            //             tmpGrid[i][j]=false;
+            //         else if (!grid[i][j].getState() && grid[i][j].getNg() == 3)
+            //             tmpGrid[i][j]=true;
+            //         else if (grid[i][j].getState() && (grid[i][j].getNg() == 2 || grid[i][j].getNg() == 3)) 
+            //             tmpGrid[i][j]=true;
+            //     }
+            // }
 
-        // Game of life logic with loops
-        // for (int i = 0; i < grid_size; i++){
-        //     for(int j = 0; j < grid_size; j++){
-        //         if (grid[i][j].getState() && (grid[i][j].getNg() < 2 || grid[i][j].getNg() > 3))
-        //             tmpGrid[i][j]=false;
-        //         else if (!grid[i][j].getState() && grid[i][j].getNg() == 3)
-        //             tmpGrid[i][j]=true;
-        //         else if (grid[i][j].getState() && (grid[i][j].getNg() == 2 || grid[i][j].getNg() == 3)) 
-        //             tmpGrid[i][j]=true;
-        //     }
-        // }
-
-        // game of life logic with recursion
-        recursionForLoop(grid_size-1, grid_size-1, grid_size-1, window, grid, tmpGrid, 3);
+            // game of life logic with recursion
+            recursionForLoop(grid_size-1, grid_size-1, grid_size-1, window, grid, tmpGrid, 3);
 
 
-        // New cell state with loops
-        // for (int i = 0; i < grid_size; i++){
-        //     for(int j = 0; j < grid_size; j++){
-        //         grid[i][j].setState(tmpGrid[i][j]);
-        //     }
-        // }
+            // New cell state with loops
+            // for (int i = 0; i < grid_size; i++){
+            //     for(int j = 0; j < grid_size; j++){
+            //         grid[i][j].setState(tmpGrid[i][j]);
+            //     }
+            // }
 
-        // New cell state with recursion
-        recursionForLoop(grid_size-1, grid_size-1, grid_size-1, window, grid, tmpGrid, 1);
+            // New cell state with recursion
+            recursionForLoop(grid_size-1, grid_size-1, grid_size-1, window, grid, tmpGrid, 1);
+        }
+        
 
         // for (int i = 0; i < grid_size; i++){
         //     for(int j = 0; j < grid_size; j++){
@@ -188,7 +211,14 @@ void recursionForLoop(int sizeX, int sizeY, int constant, sf::RenderWindow &wind
                         }
                     }
                 }
-                break;                
+                break;
+            case 6:
+                if (grid[sizeX][sizeY].overCell(window)) grid[sizeX][sizeY].setState();
+                break;
+            case 7:
+                grid[sizeX][sizeY].setState(false);
+                tmp[sizeX][sizeY] = false;
+                break;  
         }
         recursionForLoop(sizeX, sizeY-1, constant, window, grid, tmp, funToDo);
     }
@@ -202,7 +232,8 @@ void recursiveGridSetup(int sizeX, int sizeY, int constant,Cell grid[][grid_size
     }
     else {
         // else for every cell in the grid do something
-        grid[sizeX][sizeY] = Cell(rand() % 2, pos);
+        //grid[sizeX][sizeY] = Cell(rand() % 2, pos);
+        grid[sizeX][sizeY] = Cell(0, pos);
         pos.x += 16.f;
         recursiveGridSetup(sizeX, sizeY-1, constant, grid, pos);
     }
